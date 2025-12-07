@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+<title>Login - PrivyDesk</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container{
+        padding-left: 20;
+    }
+    .background-div {
+        height: 100%;
+        width: 100%;
+    }
+    .logo-text {
+        font-size: 2.5rem; 
+        background: linear-gradient(90deg, #861616 0%, #2b6011 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;        
+        color: transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .logo-icon {
+        font-size: 2.5rem;
+        margin-right: 0.3rem;
+        background: linear-gradient(90deg, #814141 0%, #73816c 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;         
+        color: transparent;
+    }
+
+    @media (max-width: 768px) {
+        .logo-text {
+            font-size: 1.8rem;
+        }
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container vh-100 d-flex align-items-center justify-content-center">
+    <div class="row shadow-lg rounded-4 overflow-hidden" style="max-width: 1200px; width: 100%; background: linear-gradient(90deg, #b8b0ae 50%, #d3321a 50%);">
+        <div class="col-md-6 p-5">
+            <div class="mb-4 text-center">
+                <h2 class="fw-bold logo-text">
+                    <i class="bi bi-lock-fill logo-icon"></i> PRIVYDESK
+                </h2>
+            </div>
+            <h3 class="mb-3 fw-bold">Login</h3>
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="mb-3 fw-bold">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                    {{ form.username|add_class:"form-control" }}
+                    {% if form.username.errors %}
+                        <div class="text-danger small">
+                            {% for error in form.username.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2 fw-bold">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                    {{ form.password|add_class:"form-control" }}
+                    {% if form.password.errors %}
+                        <div class="text-danger small">
+                            {% for error in form.password.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary w-50 fw-bold">Login</button>
+                </div>
+            </form>
+
+            <div class="d-flex justify-content-between mt-3">
+                <p class="mb-0">
+                    New User? <a href="{% url 'register' %}">Register</a>
+                </p>
+                <a href="{% url 'forgot_password' %}" class="text-decoration-none">Forgot Password?</a>
+            </div>
+        </div>
+
+        <div class="col-md-6 d-none d-md-block p-0 fixed">
+            <div class="background-div justify-content-center">
+                <img src="static/comp.jpg" alt="company" height="500px" width="600px">
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

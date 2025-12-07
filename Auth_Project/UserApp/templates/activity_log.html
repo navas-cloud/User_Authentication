@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load tz %}
+{% block title %}<title>Activity Log</title>{% endblock %}
+{% block extra_css %}
+<style>
+    body { background-color: #f8f9fb; }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        background-color: #46261d;
+        color: white;
+        padding: 20px;
+    }
+
+    .sidebar h4 { margin-bottom: 20px; }
+
+    .sidebar .nav-link {
+        color: #adb5bd;
+        margin: 6px 0;
+        font-size: 16px;
+    }
+
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover { color: #fff; }
+
+    .content-area {
+        margin-left: 25%;
+        padding: 40px;
+        min-height: 100vh;
+    }
+
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .stat-card h5 { color: #6c757d; }
+
+    .chart-container {
+        background-color: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        height: 350px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .chart-container canvas {
+        flex-grow: 1;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 sidebar">
+            <h4><i class="bi bi-lock-fill"></i> PRIVYDESK</h4>
+            <hr>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'file_upload' %}" class="nav-link {% if request.resolver_match.url_name == 'file_upload' %}active{% endif %}">Upload File</a>
+                </li>
+                {% if user.role == 'admin' or user.role == 'manager' %}
+                <li class="nav-item">
+                    <a href="{% url 'category_list' %}" class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'user_list' %}" class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">Users</a>
+                </li>
+                {% endif %}
+                {% if user.role == 'admin' %}
+                <li class="nav-item">
+                    <a href="{% url 'activity_log' %}" class="nav-link {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}">Log Activity</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="col-9 content-area">
+            <h2 class="mb-3">Activity Log</h2>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if log.user %}
+                                {{ log.user.username }}
+                            {% else %}
+                                Anonymous
+                            {% endif %}
+                        </td>
+                        <td>{{ log.role }}</td>
+                        <td>{{ log.action }}</td>
+                        <td>{% timezone "Asia/Kolkata" %}{{ log.created_at|date:"m-d-Y H:i" }}{% endtimezone %}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No activity found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

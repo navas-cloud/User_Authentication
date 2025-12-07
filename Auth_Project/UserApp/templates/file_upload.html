@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% load tz %}
+{% load widget_tweaks %}
+{% block title %}
+<title>Upload File | PrivyDesk</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        background-color: #46261d;
+        color: white;
+        padding: 20px;
+    }
+
+    .sidebar h4 {
+        margin-bottom: 20px;
+    }
+
+    .sidebar .nav-link {
+        color: #adb5bd;
+        margin: 6px 0;
+        font-size: 16px;
+    }
+
+    .sidebar .nav-link.active, 
+    .sidebar .nav-link:hover {
+        color: #fff;
+    }
+
+    .content-area {
+        margin-left: 25%;  
+        padding: 40px;
+        background-color: #f8f9fb;
+        min-height: 100vh;
+    }
+
+    .content-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    .content-card h2, .content-card h3 {
+        margin-bottom: 20px;
+    }
+
+    .content-card .form-control {
+        border-radius: 8px;
+    }
+
+    .content-card .btn-primary {
+        border-radius: 8px;
+    }
+
+    .content-card table {
+        margin-top: 20px;
+    }
+
+    .description-input {
+        height: 120px;  
+        resize: vertical;
+    }
+
+    .upload-btn {
+        display: block;          
+        width: 20%;                
+        border-radius: 8px;
+        background-color: #b64f4f; 
+        color: #fff;
+        font-weight: 500;
+        padding: 10px 0;
+        text-align: center;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .upload-btn:hover {
+        background-color: #256bd6;  
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: #fff;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 sidebar">
+            <h4><i class="bi bi-lock-fill"></i> PRIVYDESK</h4>
+            <hr>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'file_upload' %}" class="nav-link {% if request.resolver_match.url_name == 'file_upload' %}active{% endif %}">Upload File</a>
+                </li>
+                {% if user.role == 'admin' or user.role == 'manager' %}
+                <li class="nav-item">
+                    <a href="{% url 'category_list' %}" class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'user_list' %}" class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">Users</a>
+                </li>
+                {% endif %}
+                {% if user.role == 'admin' %}
+                <li class="nav-item">
+                    <a href="{% url 'activity_log' %}" class="nav-link {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}">Log Activity</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="col-9 content-area">
+            <div class="content-card">
+                <h2 class="text-center fw-bold mb-3">Upload a File</h2>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="mb-2 fw-bold">Title</label>
+                        {{ form.title|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="mb-2 fw-bold">Description</label>
+                        {{ form.description|add_class:"form-control description-input" }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="mb-2 fw-bold">File</label>
+                        {{ form.file|add_class:"form-control" }}
+                    </div>
+                    <button type="submit" class="upload-btn">Upload</button>
+                </form>
+            </div>
+
+            <div class="content-card">
+                <h4 class="fw-bold">Uploaded Files</h4>
+                <table class="table table-striped mt-3 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Uploaded By</th>
+                            <th>Updated By</th>
+                            <th>Uploaded On</th>
+                            <th>Last Updated</th>
+                            <th>Download</th>
+                            {% if user.role == 'admin' or user.role == 'manager' %}
+                                <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in page_obj %}
+                        <tr>
+                            <td>{{ f.title }}</td>
+                            <td style="max-width: 250px;">{{ f.description|default:"—" }}</td>
+                            <td>{{ f.uploader.username }}</td>
+                            <td>
+                                {% if f.updated_by %}
+                                    {{ f.updated_by.username }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{% timezone "Asia/Kolkata" %}{{ f.uploaded_at|date:"m-d-Y H:i" }}{% endtimezone %}</td>
+                            <td>
+                                {% if f.updated_at|date:"U" > f.uploaded_at|date:"U" %}
+                                    {% timezone "Asia/Kolkata" %}{{ f.updated_at|date:"m-Y-d H:i" }}{% endtimezone %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ f.file.url }}" class="btn btn-sm btn-outline-success" download>
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                            </td>
+                            {% if user.role == 'admin' or user.role == 'manager' %}
+                            <td>
+                                <a href="{% url 'file_edit' f.id %}" class="btn btn-sm btn-warning me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <form method="post" action="{% url 'file_delete' f.id %}" class="delete-file" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No files uploaded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+                {% if page_obj.has_previous or page_obj.has_next %}
+                <nav class="d-flex justify-content-center mt-4">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_obj.number }}</span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">Next</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.querySelectorAll('.delete-file').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Are you sure?',
+            html: `You are about to delete this file. This action <strong>cannot be undone</strong>.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete!',
+            cancelButtonText: 'Cancel',
+            width: '400px',
+            height: '80px',
+            customClass: {
+                confirmButton: 'btn btn-danger me-2',
+                cancelButton: 'btn btn-secondary'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

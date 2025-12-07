@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load tz %}
+{% block title %}<title>Edit File | PrivyDesk</title>{% endblock %}
+{% block extra_css %}
+<style>
+    body { background-color: #f8f9fb; }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        background-color: #46261d;
+        color: white;
+        padding: 20px;
+    }
+
+    .sidebar h4 { margin-bottom: 20px; }
+
+    .sidebar .nav-link {
+        color: #adb5bd;
+        margin: 6px 0;
+        font-size: 16px;
+    }
+
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover { color: #fff; }
+
+    .content-area {
+        margin-left: 25%;
+        padding: 40px;
+        min-height: 100vh;
+    }
+
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .stat-card h5 { color: #6c757d; }
+
+    .chart-container {
+        background-color: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        height: 350px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .chart-container canvas {
+        flex-grow: 1;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 sidebar">
+            <h4><i class="bi bi-lock-fill"></i> PRIVYDESK</h4>
+            <hr>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'file_upload' %}" class="nav-link {% if request.resolver_match.url_name == 'file_upload' %}active{% endif %}">Upload File</a>
+                </li>
+                {% if user.role == 'admin' or user.role == 'manager' %}
+                <li class="nav-item">
+                    <a href="{% url 'category_list' %}" class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'user_list' %}" class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">Users</a>
+                </li>
+                {% endif %}
+                {% if user.role == 'admin' %}
+                <li class="nav-item">
+                    <a href="{% url 'activity_log' %}" class="nav-link {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}">Log Activity</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="col-9 content-area">
+            <div class="card p-4">
+                <h3 class="fw-bold mb-3">Edit File Details</h3>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="fw-bold">Title</label>
+                        {{ form.title|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Description</label>
+                        {{ form.description|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Replace File (optional)</label>
+                        {{ form.file|add_class:"form-control" }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <a href="{% url 'file_upload' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
