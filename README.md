@@ -16,6 +16,25 @@ In multi-user organizations, not everyone should access, upload, or manage all f
 
 ---
 
+## Screenshots
+
+### Login Page
+![Login](Output_Screenshots/login.png)
+
+### Register
+![Register](Output_Screenshots/Register.png)
+
+### Profile Page
+![Profile](Output_Screenshots/Profile.png)
+
+### Categories
+![Categories](Output_Screenshots/Categories.png)
+
+### Log Activity
+![Log_Activity](Output_Screenshots/Log_Activity.png)
+
+---
+
 ## Features
 
 | Feature | Roles | Description |
@@ -52,10 +71,6 @@ In multi-user organizations, not everyone should access, upload, or manage all f
 | Templating | Django Templates |
 
 ---
-
-## Screenshots
----
-
 
 ## Project Structure
 
@@ -196,12 +211,8 @@ A configured SMTP email account (for OTP delivery)
 
 ```bash
 # Clone the repo
-git clone https://github.com/navas-cloud/privydesk.git
-cd privydesk/Auth_Project
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+git clone https://github.com/navas-cloud/User_Authentication.git
+cd User_Authentication/Auth_Project
 
 # Install dependencies
 pip install -r requirements.txt
@@ -288,5 +299,5 @@ The passcode is SHA-256 hashed from today's date and rotates automatically every
 
 ## Author
 
-**Mohammed Navas A**
-[LinkedIn](https://linkedin.com/in/mohammed-navas-a-) · [GitHub](https://github.com/navas-cloud) · mohammednavas524@gmail.com
+**MohammedNavas A**
+[LinkedIn](https://linkedin.com/in/mohammed-navas-a-) · [GitHub](https://github.com/navas-cloud) · navash.a.v012@gmail.com
