@@ -16,14 +16,6 @@ In multi-user organizations, not everyone should access, upload, or manage all f
 
 ---
 
-## Live Demo
-
-🔗 [your-deploy-link.com](https://your-deploy-link.com)
-
-> Replace with your actual deployment URL.
-
----
-
 ## Features
 
 | Feature | Roles | Description |
